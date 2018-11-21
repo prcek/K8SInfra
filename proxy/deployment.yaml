@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-app-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-app-proxy
+    spec:
+      containers:
+      - name: nginx-app-proxy-container
+        image: nginx
+        volumeMounts:
+        - name: nginx-configs
+          mountPath: /etc/nginx/conf.d
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            memory: 64Mi
+          requests:
+            memory: 32Mi
+      volumes:
+        - name: nginx-configs
+          configMap:
+            name: nginx-config
