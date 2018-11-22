@@ -1,0 +1,9 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: cert-writer
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["secrets","pods","deployments"]
+  verbs: ["get", "watch", "list"]

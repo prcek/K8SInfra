@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: certbot-job
+spec:
+  template:
+    metadata:
+      name: certbot
+      labels:
+        job: certbot
+    spec:
+      serviceAccountName: certbot
+      containers:
+      - image: prcek/k8scertbot:lastest
+        name: k8scertbot
+        imagePullPolicy: Always
+        ports:
+        - name: certbot
+          containerPort: 80
+        env:
+        - name: DOMAINS
+          value: "*.prcek.io, do.tsstarlet.net"
+        - name: EMAIL
+          value: tomas.hluchan@gmail.com
+        - name: SECRET
+          value: letsencrypt-certs
+      restartPolicy: Never
