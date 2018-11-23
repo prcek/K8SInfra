@@ -18,6 +18,30 @@ data:
     }
 
     server {
+      listen 443 ssl;
+      listen [::]:443 ssl;
+      server_name  do.tsstarlet.net;
+      ssl_certificate /etc/nginx/certs/do.tsstarlet.net.crt;
+      ssl_certificate_key /etc/nginx/certs/do.tsstarlet.net.key;
+      location / {
+        add_header Content-Type text/plain;
+        return 200 "SSL Test do.tsstarlet.net!";
+      }
+    }
+
+    server {
+      listen 443 ssl;
+      listen [::]:443 ssl;
+      server_name  www.prcek.io;
+      ssl_certificate /etc/nginx/certs/www.prcek.io.crt;
+      ssl_certificate_key /etc/nginx/certs/www.prcek.io.key;
+      location / {
+        add_header Content-Type text/plain;
+        return 200 "SSL Test www.prcek.io!";
+      }
+    }
+
+    server {
       listen 80;
       listen [::]:80;
       server_name  _;

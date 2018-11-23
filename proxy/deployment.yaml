@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: nginx-app-proxy
+        ver: "1235"
     spec:
       containers:
       - name: nginx-app-proxy-container
@@ -23,6 +24,8 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+          protocol: TCP
+        - containerPort: 443
           protocol: TCP
         resources:
           limits:

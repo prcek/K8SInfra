@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: certbot
       containers:
-      - image: prcek/k8scertbot:lastest
+      - image: prcek/k8scertbot:x
         name: k8scertbot
         imagePullPolicy: Always
         ports:
