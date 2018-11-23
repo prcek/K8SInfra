@@ -23,7 +23,7 @@ const update = {
     "kind":"Secret",
     "apiVersion":"v1",
     "metadata": {
-            "name":"xxx",
+            "name":"letsencrypt-certs",
             "namespace":"default",
     },
     "type":"Opaque",
