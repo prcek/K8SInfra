@@ -14,6 +14,7 @@ RUN apt-get install --no-install-recommends --no-install-suggests -y nodejs
 RUN rm -f ./setup_10.x
 
 COPY entry.sh /
+COPY update.js /
 
 EXPOSE 80
 
