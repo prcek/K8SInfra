@@ -36,10 +36,26 @@ data:
       ssl_certificate /etc/nginx/certs/www.prcek.io.crt;
       ssl_certificate_key /etc/nginx/certs/www.prcek.io.key;
       location / {
-        add_header Content-Type text/plain;
-        return 200 "SSL Test www.prcek.io!";
+        #add_header Content-Type text/plain;
+        #return 200 "SSL Test www.prcek.io!";
+        proxy_pass http://app-a-service/;
       }
     }
+
+    server {
+      listen 80;
+      listen [::]:80;
+      server_name www.prcek.io;
+
+      location ^~ /.well-known/acme-challenge/ {
+        proxy_pass http://certbot/.well-known/acme-challenge/;
+      }
+      location / {
+        return 301 https://www.prcek.io$request_uri;
+      }
+ 
+    }
+
 
     server {
       listen 80;
