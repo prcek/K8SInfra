@@ -35,6 +35,12 @@ data:
       server_name  www.prcek.io;
       ssl_certificate /etc/nginx/certs/www.prcek.io.crt;
       ssl_certificate_key /etc/nginx/certs/www.prcek.io.key;
+
+      location = /robots.txt {
+        add_header  Content-Type  text/plain;
+        return 200 "User-agent: *\nDisallow: /\n";
+      }
+
       location / {
         #add_header Content-Type text/plain;
         #return 200 "SSL Test www.prcek.io!";
@@ -50,6 +56,12 @@ data:
       location ^~ /.well-known/acme-challenge/ {
         proxy_pass http://certbot/.well-known/acme-challenge/;
       }
+
+      location = /robots.txt {
+        add_header  Content-Type  text/plain;
+        return 200 "User-agent: *\nDisallow: /\n";
+      }
+
       location / {
         return 301 https://www.prcek.io$request_uri;
       }
