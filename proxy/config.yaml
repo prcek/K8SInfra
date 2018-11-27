@@ -17,6 +17,11 @@ data:
       server app-a-service:8080 max_fails=0 fail_timeout=1s;
     }
 
+    upstream fs-backend-service {
+      server fs-backend-service:8080 max_fails=0 fail_timeout=1s;
+    }
+
+
     server {
       listen 443 ssl;
       listen [::]:443 ssl;
@@ -44,7 +49,7 @@ data:
       location / {
         #add_header Content-Type text/plain;
         #return 200 "SSL Test www.prcek.io!";
-        proxy_pass http://app-a-service/;
+        proxy_pass http://fs-backend-service/;
       }
     }
 

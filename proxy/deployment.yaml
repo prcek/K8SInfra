@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: nginx-app-proxy
-        ver: "1239"
+        ver: "1240"
     spec:
       containers:
       - name: nginx-app-proxy-container
