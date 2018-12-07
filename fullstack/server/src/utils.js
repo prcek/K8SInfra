@@ -1,3 +1,9 @@
+const  {MongoMemoryServer}  = require('mongodb-memory-server');
+
+
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+
 const SQL = require('sequelize');
 
 module.exports.paginateResults = ({
@@ -68,4 +74,59 @@ module.exports.createStore = () => {
   });
 
   return { users, trips };
+};
+
+
+module.exports.createMockMongoStore = async () => {
+
+  const mongod = new MongoMemoryServer();
+
+
+  const mongoUri = await mongod.getConnectionString();
+  const port = await mongod.getPort();
+  const dbPath = await mongod.getDbPath();
+  const dbName = await mongod.getDbName();
+
+  const mongooseOpts = { // options for mongoose 4.11.3 and above
+    autoReconnect: true,
+    reconnectTries: Number.MAX_VALUE,
+    reconnectInterval: 1000,
+    //useMongoClient: true, // remove this line if you use mongoose 5 and above
+    useNewUrlParser: true
+  };
+
+
+  mongoose.connection.on('error', (e) => {
+    if (e.message.code === 'ETIMEDOUT') {
+      console.log(e);
+      mongoose.connect(mongoUri, mongooseOpts);
+    }
+    console.log(e);
+  });
+
+  mongoose.connection.once('open', () => {
+    console.log(`MongoDB successfully connected to ${mongoUri}`);
+  });
+
+  const ret = await mongoose.connect(mongoUri,mongooseOpts);
+  var admin = new mongoose.mongo.Admin(mongoose.connection.db);
+  const info = await admin.buildInfo();
+  console.log(`mongodb version ${info.version}`);
+
+
+  const userSchema = new mongoose.Schema({
+    login: {type:String, index: true, unique: true},
+    password: String,
+  });
+  
+  const noteSchema = new mongoose.Schema({
+    note: String,
+  });
+  
+
+  const UserModel = mongoose.model('User',userSchema);
+  const NoteModel = mongoose.model('Note',noteSchema);
+
+  return {UserModel,NoteModel,mongod,mongoose}
+
 };
