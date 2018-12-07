@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+
+            "name": "Launch Fullstack Server",
+            "cwd": "${workspaceFolder}/fullstack/server",
+            "program": "${workspaceFolder}/fullstack/server/src/index.js",
+            "runtimeExecutable": "${workspaceFolder}/fullstack/server/node.sh"
+
+
+            //"cwd": "${workspaceFolder}/fullstack/server/",
+            //"name": "Launch Program",
+            //"program": "${workspaceFolder}/fullstack/server/src/index.js"
+        }
+    ]
+}
