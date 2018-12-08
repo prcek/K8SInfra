@@ -9,6 +9,7 @@ const { createMockMongoStore } = require('./utils');
 
 const LaunchAPI = require('./datasources/launch');
 const UserAPI = require('./datasources/user');
+const NoteAPI = require('./datasources/note');
 const resolvers = require('./resolvers');
 
 
@@ -22,6 +23,7 @@ async function start() {
         dataSources: () => ({
             launchAPI: new LaunchAPI(),
             userAPI: new UserAPI({ store }),
+            noteAPI: new NoteAPI({ store:mongostore }),
         }),
     });
     const {url} = await server.listen();

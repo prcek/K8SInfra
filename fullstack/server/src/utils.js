@@ -92,7 +92,8 @@ module.exports.createMockMongoStore = async () => {
     reconnectTries: Number.MAX_VALUE,
     reconnectInterval: 1000,
     //useMongoClient: true, // remove this line if you use mongoose 5 and above
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useCreateIndex: true,
   };
 
 

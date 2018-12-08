@@ -23,13 +23,14 @@ afterAll( async () => {
 
 
 describe('[DemoAPI.Mongoose 1]',  () => {
-    it('UserModel.count is 0', async () => {
+    test('UserModel.count is 0', async () => {
         expect(await UserModel.countDocuments()).toEqual(0);
     });
     it('new UserModel', async () => {
         var user = await UserModel.create({login:"foo",password:"bar"});
         expect(user).toMatchObject({login:"foo",password:"bar"});
-        expect(user).toHaveProperty('id');
+        //expect(user).not.toHaveProperty('_id');
+        //expect(user).not.toHaveProperty('id');
         expect(await UserModel.countDocuments()).toEqual(1);
     });
   

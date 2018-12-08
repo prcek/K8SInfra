@@ -9,6 +9,7 @@ const typeDefs = gql`
     launch(id: ID!): Launch
     # Queries for the current user
     me: User
+    notes: [Note]!
   }
   type Launch {
     id: ID!
@@ -21,6 +22,11 @@ const typeDefs = gql`
     id: ID!
     name: String
     type: String
+  }
+
+  type Note {
+    id: ID!
+    note: String
   }
 
   type User {
@@ -47,6 +53,7 @@ const typeDefs = gql`
     cancelTrip(launchId: ID!): TripUpdateResponse!
 
     login(email: String): String # login token
+    createNote(note: String): Note!
   }
   type TripUpdateResponse {
     success: Boolean!
