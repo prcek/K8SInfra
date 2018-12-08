@@ -36,6 +36,8 @@
       "/node_modules/",
       "/__utils"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "verbose": true,
+    "bail": true
   }
 }
