@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/fullstack/server/node_modules/jest/bin/jest",
             "args": [
-                "--runInBand"
+                "--runInBand",
+                "--detectOpenHandles"
             ],
             "cwd": "${workspaceFolder}/fullstack/server",
             "console": "integratedTerminal",
