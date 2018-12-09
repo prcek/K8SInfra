@@ -38,6 +38,12 @@
     ],
     "testEnvironment": "node",
     "verbose": true,
-    "bail": true
+    "bail": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/src/datasources/*.{js}",
+      "**/src/*.{js}",
+      "!**/node_modules/**"
+    ]
   }
 }
