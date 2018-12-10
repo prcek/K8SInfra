@@ -5,7 +5,7 @@ module.exports = {
       launch: (_, { id }, { dataSources }) =>
         dataSources.launchAPI.getLaunchById({ launchId: id }),
       me: async (_, __, { dataSources }) =>
-        dataSources.userAPI.findOrCreateUser(),
+        dataSources.userAPI.getMe(),
       notes: async (_, __, { dataSources }) =>
         dataSources.noteAPI.getAllNotes(),
     },
@@ -16,7 +16,9 @@ module.exports = {
           id: new_note.id,
           note: new_note.note
         };
-      }
+      },
+      login: async (_, { login, password }, { dataSources }) => 
+        dataSources.userAPI.login({ login,password }), 
     }
   };
   

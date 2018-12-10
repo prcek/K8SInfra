@@ -1,7 +1,10 @@
 
 
-const { gql, SchemaDirectiveVisitor } = require('apollo-server');
+const { SchemaDirectiveVisitor } = require('apollo-server');
 const { defaultFieldResolver } = require("graphql");
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
+
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
     this.ensureFieldsWrapped(type);
@@ -28,9 +31,24 @@ class AuthDirective extends SchemaDirectiveVisitor {
 
 const createAuthContext = (store) => {
     return async ({req}) => {
-        const auth = (req.headers && req.headers.authorization) || '';
-        const notes = await store.NoteModel.find({});
-        return { auth:true };
+        let token = null; 
+
+        if ( req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+          token =  req.headers.authorization.split(' ')[1];
+        } else {  
+           //TODO cookie or query 
+        }
+        
+        if (token) {
+          try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            return { loggedIn: true, user: decoded.user};
+          } catch(err) {
+
+          }
+        }
+
+        return { loggedIn:false };
     };
 }
 
