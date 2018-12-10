@@ -2,7 +2,9 @@ require('dotenv').config();
 
 
 const { ApolloServer } = require('apollo-server');
-const typeDefs = require('./schema');
+const { typeDefs} = require('./schema');
+const { AuthDirective,createAuthContext } = require('./auth');
+
 
 const { createStore } = require('./utils');
 const { createMockMongoStore } = require('./utils');
@@ -20,6 +22,10 @@ async function start() {
     const server = new ApolloServer({ 
         typeDefs,
         resolvers,
+        context: createAuthContext(mongostore),
+        schemaDirectives: {
+            auth:AuthDirective
+        },
         dataSources: () => ({
             launchAPI: new LaunchAPI(),
             userAPI: new UserAPI({ store }),

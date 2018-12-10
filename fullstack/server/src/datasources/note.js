@@ -28,6 +28,9 @@ class NoteAPI extends DataSource {
     return this.store.NoteModel.create(args);
   }
 
+  async getNote(id) {
+    return this.store.NoteModel.findById(id);
+  }
 }
 
 module.exports = NoteAPI;

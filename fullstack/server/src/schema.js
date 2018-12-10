@@ -1,9 +1,18 @@
 const { gql } = require('apollo-server');
 
-
-
-
 const typeDefs = gql`
+
+
+  directive @auth(
+    requires: Role = ADMIN,
+  ) on OBJECT | FIELD_DEFINITION
+
+  enum Role {
+    ADMIN
+    USER
+    UNKNOWN
+  }
+
   type Query {
     launches: [Launch]!
     launch(id: ID!): Launch
@@ -26,7 +35,7 @@ const typeDefs = gql`
 
   type Note {
     id: ID!
-    note: String
+    note: String @auth(requires: ADMIN)
   }
 
   type User {
@@ -62,5 +71,7 @@ const typeDefs = gql`
   }
 `
 
-module.exports = typeDefs;
+module.exports = { 
+  typeDefs 
+};
 
