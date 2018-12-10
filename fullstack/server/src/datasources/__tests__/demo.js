@@ -19,7 +19,7 @@ beforeAll(async ()=>{
     UserModel = store.UserModel;
     NoteModel = store.NoteModel;
     noteAPI = new NoteAPI({ store });
-    noteAPI.initialize({ context: { user: { id: 1, email: 'a@a.a' } } });
+    noteAPI.initialize({ context: { loggedIn:true, user: { id: 0, roles:["ADMIN"] } } });
 });
 
 afterAll( async () => {

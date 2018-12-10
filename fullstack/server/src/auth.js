@@ -7,12 +7,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
 
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
-    this.ensureFieldsWrapped(type);
     type._requiredAuthRole = this.args.requires;
+    this.ensureFieldsWrapped(type);
   }
   visitFieldDefinition(field, details) {
-    this.ensureFieldsWrapped(details.objectType);
     field._requiredAuthRole = this.args.requires;
+    this.ensureFieldsWrapped(details.objectType);
   }
   ensureFieldsWrapped(objectType) {
     if (objectType._authFieldsWrapped) return;
@@ -21,9 +21,17 @@ class AuthDirective extends SchemaDirectiveVisitor {
     Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
       const { resolve = defaultFieldResolver } = field;
-      field.resolve = async function (...args) {
-        console.log("wrapped field resolver");
-        return resolve.apply(this, args);
+      const requiredRole = field._requiredAuthRole || objectType._requiredAuthRole;
+      if (requiredRole) {
+        field.description += `@auth ${requiredRole}`;
+        field.resolve = async function (...args) {
+          const context = args[2];
+          //TODO check  - requiredRole
+          if (! context.loggedIn ) {
+            throw new Error("not authorized");
+          }
+          return resolve.apply(this, args);
+        }
       }
     });
   }

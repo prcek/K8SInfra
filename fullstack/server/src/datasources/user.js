@@ -24,7 +24,7 @@ class UserAPI extends DataSource {
 
   async login({ login, password }) {
 
-    const token = jwt.sign({ user: { id: 0, login, role:"ADMIN"} }, JWT_SECRET);
+    const token = jwt.sign({ user: { id: 0, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET);
 
     return { success: true, token};
   }

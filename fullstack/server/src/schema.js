@@ -62,7 +62,7 @@ const typeDefs = gql`
     cancelTrip(launchId: ID!): TripUpdateResponse!
 
     login(login: String! password: String!): LoginResponse!
-    createNote(note: String): Note!
+    createNote(note: String): Note! @auth(requires: ADMIN)
   }
 
   type LoginResponse {
