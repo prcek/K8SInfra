@@ -1,5 +1,6 @@
 const { DataSource } = require('apollo-datasource');
 const isEmail = require('isemail');
+const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
 
@@ -21,6 +22,19 @@ class UserAPI extends DataSource {
    // const users = await this.store.users.findOrCreate({ where: { email } });
     return null;
   }
+
+  async getAllUsers() {
+    return this.store.UserModel.find({});
+  }
+  async createUser(args) {
+    //todo encrypt password
+    let salt = bcrypt.genSaltSync();
+    const nu = Object.assign({},args);
+    nu.password = bcrypt.hashSync( args.password, salt );
+    return this.store.UserModel.create(nu);
+  }
+
+
 
   async login({ login, password }) {
 

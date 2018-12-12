@@ -23,7 +23,7 @@ beforeAll(async ()=>{
 });
 
 afterAll( async () => {
-    store.mongoose.disconnect();
+    store.mongoose_connection.close();
     store.mongod.stop();
     console.log("afterAll")
 });

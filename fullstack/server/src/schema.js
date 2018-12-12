@@ -18,7 +18,8 @@ const typeDefs = gql`
     launch(id: ID!): Launch
     # Queries for the current user
     me: User
-    notes: [Note]!
+    users: [User]! @auth(requires: ADMIN)
+    notes: [Note]! @auth(requires: USER)
   }
   type Launch {
     id: ID!
@@ -40,8 +41,8 @@ const typeDefs = gql`
 
   type User {
     id: ID!
-    email: String!
-    trips: [Launch]!
+    login: String!
+    password: String! 
   }
 
   type Mission {
@@ -62,7 +63,8 @@ const typeDefs = gql`
     cancelTrip(launchId: ID!): TripUpdateResponse!
 
     login(login: String! password: String!): LoginResponse!
-    createNote(note: String): Note! @auth(requires: ADMIN)
+    createNote(note: String): Note! @auth(requires: USER)
+    createUser(login: String! password: String!): User! @auth(requires: ADMIN)
   }
 
   type LoginResponse {

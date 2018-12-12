@@ -97,20 +97,24 @@ module.exports.createMockMongoStore = async () => {
   };
 
 
-  mongoose.connection.on('error', (e) => {
+  let mongoose_connection = await mongoose.createConnection(mongoUri, mongooseOpts);
+  console.log(`MongoDB successfully connected to ${mongoUri}`);
+  /*
+  mongoose_connection.on('error', (e) => {
     if (e.message.code === 'ETIMEDOUT') {
       console.log(e);
-      mongoose.connect(mongoUri, mongooseOpts);
+      //mongoose.connect(mongoUri, mongooseOpts);
     }
     console.log(e);
   });
 
-  mongoose.connection.once('open', () => {
+  mongoose_connection.once('open', () => {
     console.log(`MongoDB successfully connected to ${mongoUri}`);
   });
+  */
 
-  const ret = await mongoose.connect(mongoUri,mongooseOpts);
-  var admin = new mongoose.mongo.Admin(mongoose.connection.db);
+  //const ret = await mongoose.connect(mongoUri,mongooseOpts);
+  var admin = new mongoose.mongo.Admin(mongoose_connection.db);
   const info = await admin.buildInfo();
   console.log(`mongodb version ${info.version}`);
 
@@ -125,9 +129,10 @@ module.exports.createMockMongoStore = async () => {
   });
   
 
-  const UserModel = mongoose.model('User',userSchema);
-  const NoteModel = mongoose.model('Note',noteSchema);
-
-  return {UserModel,NoteModel,mongod,mongoose}
+  const UserModel = mongoose_connection.model('User',userSchema);
+  const NoteModel = mongoose_connection.model('Note',noteSchema);
+  const rs = {UserModel,NoteModel,mongod,mongoose_connection};
+  //console.log("RS",rs);
+  return rs;
 
 };

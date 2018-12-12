@@ -8,14 +8,15 @@ module.exports = {
         dataSources.userAPI.getMe(),
       notes: async (_, __, { dataSources }) =>
         dataSources.noteAPI.getAllNotes(),
+      users: async (_, __, { dataSources }) =>
+        dataSources.userAPI.getAllUsers(),
     },
     Mutation: {
       createNote: async (_, { note }, { dataSources }) => {
-        const new_note = await dataSources.noteAPI.createNote({ note });
-        return {
-          id: new_note.id,
-          note: new_note.note
-        };
+        return dataSources.noteAPI.createNote({ note });
+      },
+      createUser: async (_, { login, password }, { dataSources }) => {
+        return dataSources.userAPI.createUser({ login,password });
       },
       login: async (_, { login, password }, { dataSources }) => 
         dataSources.userAPI.login({ login,password }), 
