@@ -37,6 +37,13 @@ class UserAPI extends DataSource {
 
 
   async login({ login, password }) {
+    const user = await this.store.UserModel.findOne({login});
+    if (!user) {
+      return { success: false }
+    }
+    if (!bcrypt.compareSync( password, user.password )) {
+      return { success: false }
+    }
 
     const token = jwt.sign({ user: { id: 0, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET);
 

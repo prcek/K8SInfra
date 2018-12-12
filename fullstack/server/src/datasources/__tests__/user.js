@@ -1,4 +1,5 @@
 const { createMockMongoStore } = require('../../utils');
+const { createAuthContext } = require('../../auth');
 
 const UserAPI = require('../user');
 
@@ -6,6 +7,7 @@ const UserAPI = require('../user');
 let store;
 let UserModel;
 let userAPI;
+let authContext;
 
 beforeAll(async ()=>{
     console.log("beforeAll")
@@ -13,7 +15,7 @@ beforeAll(async ()=>{
     UserModel = store.UserModel;
     userAPI = new UserAPI({ store });
     userAPI.initialize({ context: {  } });
-    
+    authContext = createAuthContext(store);
     //userAPI.initialize({ context: { loggedIn:true, user: { id: 0, roles:["ADMIN"] } } });
 });
 
@@ -48,6 +50,13 @@ describe('[UserAPI]', () => {
     });
 
     test('login user', async () => {
+        expect(await userAPI.login({login:"missing login",password:"wrong password"})).toMatchObject({success:false});
         expect(await userAPI.login({login:"admin",password:"wrong password"})).toMatchObject({success:false});
+        const lr = await userAPI.login({login:"admin",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String)}));   
+        const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
+        expect(ac).toMatchObject({loggedIn:true});
+        
     });
+
 })
