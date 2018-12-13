@@ -34,7 +34,7 @@ const constructTestServer = async ({ context = defaultContext } = {}) => {
 beforeAll(async ()=>{
     console.log("beforeAll")
     store = await createMockMongoStore();
-    datasources = await createDataSources(mongostore);
+    datasources = await createDataSources(store);
     server = new ApolloServer({
         typeDefs,
         resolvers,
@@ -60,11 +60,10 @@ describe('[integration]',  () => {
         contextMock.mockReturnValue({loggedIn:false});
         const rs = await client.query({query:gql`query users { users {login }}`});
         expect(rs).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"not authorized"})])});
-
-//        contextMock.mockReturnValue({loggedIn:false});
-//        const rs2 = await client.query({query:gql`query users { users {login }}`});
-//        expect(rs2).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"not authorized "})])});
-
+        contextMock.mockReturnValue({loggedIn:true});
+        const rs2 = await client.query({query:gql`query users { users {login }}`});
+        expect(rs2).not.toMatchObject({errors:expect.anything()});
+        expect(rs2).toMatchObject({data:expect.objectContaining({users:[]})});
     });
 })
 
