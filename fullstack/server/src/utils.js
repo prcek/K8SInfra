@@ -4,8 +4,6 @@ const  {MongoMemoryServer}  = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
-const SQL = require('sequelize');
-
 module.exports.paginateResults = ({
   after: cursor,
   pageSize = 20,
@@ -94,3 +92,5 @@ module.exports.createMockMongoStore = async () => {
   return {UserModel,NoteModel,mongod,mongoose_connection};
 
 };
+
+
