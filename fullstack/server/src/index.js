@@ -6,7 +6,7 @@ const { typeDefs} = require('./schema');
 const { AuthDirective,createAuthContext } = require('./auth');
 
 
-const { createStore } = require('./utils');
+//const { createServer } = require('./utils');
 const { createMockMongoStore } = require('./utils');
 
 const LaunchAPI = require('./datasources/launch');
@@ -17,8 +17,13 @@ const resolvers = require('./resolvers');
 
 async function start() {
 
-    const store = createStore();
     const mongostore =  await createMockMongoStore();
+
+
+    const user_api = new UserAPI({ store:mongostore });
+    const admin_user = await user_api.createUser({login:"admin",password:"secret"});
+    
+    console.log("default admin user created",admin_user);
     const server = new ApolloServer({ 
         typeDefs,
         resolvers,

@@ -1,5 +1,4 @@
 const { DataSource } = require('apollo-datasource');
-const isEmail = require('isemail');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
