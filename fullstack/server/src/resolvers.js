@@ -16,6 +16,9 @@ module.exports = {
       },
       login: async (_, { login, password }, { dataSources }) => 
         dataSources.userAPI.login({ login,password }), 
-    }
+      relogin: async (_, { login }, { dataSources }) => 
+        dataSources.userAPI.relogin({ login }), 
+
+      }
   };
   

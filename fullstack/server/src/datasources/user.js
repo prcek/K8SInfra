@@ -33,7 +33,21 @@ class UserAPI extends DataSource {
     return this.store.UserModel.create(nu);
   }
 
+  async relogin({ login }) {
+    if (!this.context.loggedIn) {
+      return { success:false };
+    }
 
+    //TODO relogin - change login/user_id
+
+    const user = await this.store.UserModel.findById(this.context.user.id);
+    if (!user) {
+      return { success:false };
+    }
+    const token = jwt.sign({ user: { id: user.id, login:user.login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
+    return { success: true, token, user};
+  }
+  
 
   async login({ login, password }) {
     const user = await this.store.UserModel.findOne({login});

@@ -74,5 +74,15 @@ describe('[UserAPI]', () => {
         global.Date.now = realDateNow;
     });
 
+    test('relogin',async ()=>{
+        const lr = await userAPI.login({login:"admin",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));
+        const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
+        expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"admin"}});
+        userAPI.initialize({ context: ac});
+        const rlr = await userAPI.relogin({});
+        expect(rlr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));
+    });
+
 
 })
