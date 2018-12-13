@@ -55,7 +55,7 @@ afterAll( async () => {
 
 
 describe('[integration]',  () => {
-    test('true test', async () => {
+    test('loggedIn, loggedOut, authDirective', async () => {
         //expect(await client.query({query:gql`query me { me {login }}`})).not.toMatchObject({errors:expect.anything()})
         contextMock.mockReturnValue({loggedIn:false});
         const rs = await client.query({query:gql`query users { users {login }}`});
