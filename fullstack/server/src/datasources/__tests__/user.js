@@ -33,8 +33,8 @@ describe('[UserAPI]', () => {
     });
     test('no me', async () => {
         expect(await userAPI.getMe()).toBeNull();
-        userAPI.initialize({ context: { loggedIn:true, user: { id: 0, roles:["ADMIN"] } } });
-        expect(await userAPI.getMe()).toBeNull();
+        //userAPI.initialize({ context: { loggedIn:true, user: { id: 0, roles:["ADMIN"] } } });
+        //expect(await userAPI.getMe()).not.toBeNull();
         //expect(await noteAPI.createNote({note:"test"})).toMatchObject({note:"test"});
         //expect(await noteAPI.getAllNotes()).toContainEqual(expect.objectContaining({ note: "test", id: expect.anything() }));
      
@@ -56,6 +56,8 @@ describe('[UserAPI]', () => {
         expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));   
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
         expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"admin"}});
+        userAPI.initialize({ context: ac});
+        expect(await userAPI.getMe()).toMatchObject({login:"admin"});
     });
     test('login expired', async () =>{ 
         const lr = await userAPI.login({login:"admin",password:"secret"});
@@ -67,7 +69,10 @@ describe('[UserAPI]', () => {
         global.Date.now = dateNowStub;
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
         expect(ac).toMatchObject({loggedIn:false});
+        userAPI.initialize({ context: ac});
+        expect(await userAPI.getMe()).toBeNull();
         global.Date.now = realDateNow;
     });
+
 
 })

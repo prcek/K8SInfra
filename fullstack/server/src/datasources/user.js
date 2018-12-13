@@ -16,12 +16,11 @@ class UserAPI extends DataSource {
   }
 
   async getMe() {
-   // const email =
-   //   this.context && this.context.user ? this.context.user.email : emailArg;
-   // if (!email || !isEmail.validate(email)) return null;
-
-   // const users = await this.store.users.findOrCreate({ where: { email } });
-    return null;
+    if (!this.context.loggedIn) {
+      return null;
+    }
+    const user = await this.store.UserModel.findById(this.context.user.id);
+    return user;
   }
 
   async getAllUsers() {
