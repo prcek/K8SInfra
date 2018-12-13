@@ -63,8 +63,10 @@ describe('[NoteAPI]',  () => {
     });
     
     test('NoteAPI new note', async () => {
-        expect(await noteAPI.createNote({note:"test"})).toMatchObject({note:"test"});
+        const new_note = await noteAPI.createNote({note:"test"});
+        expect(new_note).toMatchObject({note:"test"});
         expect(await noteAPI.getAllNotes()).toContainEqual(expect.objectContaining({ note: "test", id: expect.anything() }));
+        expect(await noteAPI.getNote(new_note.id)).not.toBeNull();
     });
     
 })
