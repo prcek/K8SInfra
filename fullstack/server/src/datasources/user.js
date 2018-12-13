@@ -3,6 +3,7 @@ const isEmail = require('isemail');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
+const JWT_EXPIRE = process.env.JWT_EXPIRE || '3h';
 
 class UserAPI extends DataSource {
   constructor({ store }) {
@@ -45,9 +46,8 @@ class UserAPI extends DataSource {
       return { success: false }
     }
 
-    const token = jwt.sign({ user: { id: 0, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET);
-
-    return { success: true, token};
+    const token = jwt.sign({ user: { id: user.id, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
+    return { success: true, token, user};
   }
 
  }

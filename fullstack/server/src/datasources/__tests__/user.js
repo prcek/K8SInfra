@@ -53,10 +53,21 @@ describe('[UserAPI]', () => {
         expect(await userAPI.login({login:"missing login",password:"wrong password"})).toMatchObject({success:false});
         expect(await userAPI.login({login:"admin",password:"wrong password"})).toMatchObject({success:false});
         const lr = await userAPI.login({login:"admin",password:"secret"});
-        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String)}));   
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));   
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
-        expect(ac).toMatchObject({loggedIn:true});
-        
+        expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"admin"}});
+    });
+    test('login expired', async () =>{ 
+        const lr = await userAPI.login({login:"admin",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));   
+        const realDateNow = Date.now.bind(global.Date);
+        let now = new Date();
+        now.setTime(now.getTime() + (61*60*1000));
+        const dateNowStub = jest.fn(() => now.getTime());
+        global.Date.now = dateNowStub;
+        const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
+        expect(ac).toMatchObject({loggedIn:false});
+        global.Date.now = realDateNow;
     });
 
 })

@@ -42,7 +42,6 @@ const typeDefs = gql`
   type User {
     id: ID!
     login: String!
-    password: String! 
   }
 
   type Mission {
@@ -70,6 +69,7 @@ const typeDefs = gql`
   type LoginResponse {
     success: Boolean!
     token: String
+    user: User
   }
 
   type TripUpdateResponse {
