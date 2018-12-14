@@ -3,11 +3,13 @@ const { createAuthContext } = require('../../auth');
 const { createModels } = require('../../models');
 
 const UserAPI = require('../user');
+const RoleAPI = require('../role');
 
 
 let store;
 let UserModel;
 let userAPI;
+let roleAPI;
 let authContext;
 
 beforeAll(async ()=>{
@@ -16,6 +18,8 @@ beforeAll(async ()=>{
     UserModel = store.UserModel;
     userAPI = new UserAPI({ store });
     userAPI.initialize({ context: {  } });
+    roleAPI = new RoleAPI({ store });
+    roleAPI.initialize({ context: {  } });
     authContext = createAuthContext(store);
     //userAPI.initialize({ context: { loggedIn:true, user: { id: 0, roles:["ADMIN"] } } });
 });
@@ -54,7 +58,13 @@ describe('[UserAPI]', () => {
         expect(await userAPI.login({login:"missing login",password:"wrong password"})).toMatchObject({success:false});
         expect(await userAPI.login({login:"admin",password:"wrong password"})).toMatchObject({success:false});
         const lr = await userAPI.login({login:"admin",password:"secret"});
-        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));   
+        expect(lr).toEqual(expect.objectContaining({
+            success:true,
+            token:expect.any(String),
+            user:expect.objectContaining({id:expect.any(String),login:"admin"}),
+            effective_user:expect.objectContaining({id:expect.any(String),login:"admin"}),
+            effective_rules:expect.any(Array)
+        }));   
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
         expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"admin"}});
         userAPI.initialize({ context: ac});
@@ -83,6 +93,35 @@ describe('[UserAPI]', () => {
         userAPI.initialize({ context: ac});
         const rlr = await userAPI.relogin({});
         expect(rlr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));
+    });
+
+
+    test('role binding', async ()=>{
+
+        expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});
+        expect(await userAPI.createUser({login:"joe",password:"secret"})).toMatchObject({login:"joe"});
+        expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});
+        expect(await roleAPI.createRole({name:"tester",rules:[{actions:["view"],resources:["tests"]}]})).toMatchObject({name:"tester"});
+        expect(await userAPI.bindRole({login:"joe", role:"tester"})).toMatchObject({success:true});
+      
+        expect(await roleAPI.createRole({name:"auditor",rules:[{actions:["view"],resources:["audits"]}]})).toMatchObject({name:"auditor"});
+        expect(await userAPI.bindRole({login:"joe", role:"auditor"})).toMatchObject({success:true});
+      
+
+        const lr = await userAPI.login({login:"joe",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),
+            user:expect.objectContaining({id:expect.any(String),login:"joe"}),
+            effective_user:expect.objectContaining({id:expect.any(String),login:"joe"}),
+            effective_rules:expect.arrayContaining([expect.objectContaining({
+                actions:expect.arrayContaining(['view']),
+                resources:expect.arrayContaining(['audits']) })]),
+        }));   
+
+        expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:true});
+        expect(await userAPI.unbindRole({login:"joe", role:"auditor"})).toMatchObject({success:true});
+        expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});
+        expect(await userAPI.unbindRole({login:"joe", role:"auditor"})).toMatchObject({success:false});
+
     });
 
 

@@ -38,14 +38,24 @@ class UserAPI extends DataSource {
       return { success:false };
     }
 
-    //TODO relogin - change login/user_id
+
 
     const user = await this.store.UserModel.findById(this.context.user.id);
     if (!user) {
       return { success:false };
     }
-    const token = jwt.sign({ user: { id: user.id, login:user.login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
-    return { success: true, token, user};
+      //TODO relogin - change login/user_id
+    const effective_user = user;
+
+    const roles = await this.store.RoleModel.find({name: {$in:[...effective_user.roles]} });
+    const rules = roles.reduce((res,r)=>{return res.concat(r.rules)},[]);
+
+    const token = jwt.sign({
+       user: { id: user.id, login:user.login, roles:user.roles}, 
+       effective_user: { id: user.id, login, roles: user.roles},
+       effective_rules: rules, 
+    }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
+    return { success: true, token, user, effective_user, effective_rules:rules};
   }
   
 
@@ -58,10 +68,43 @@ class UserAPI extends DataSource {
       return { success: false }
     }
 
-    const token = jwt.sign({ user: { id: user.id, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
-    return { success: true, token, user, effective_user:user};
-  }
 
+    const roles = await this.store.RoleModel.find({name: {$in:[...user.roles]} });
+    const rules = roles.reduce((res,r)=>{return res.concat(r.rules)},[]);
+
+    const token = jwt.sign({ 
+      user: { id: user.id, login, roles: user.roles},
+      effective_user: { id: user.id, login, roles: user.roles},
+      effective_rules: rules, 
+    }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
+    return { success: true, token, user, effective_user:user, effective_rules:rules};
+  }
+  async bindRole({ login, role:name }) {
+    const user = await this.store.UserModel.findOne({login});
+    if (!user) {
+      return { success: false , error_message:"404 user not found"}
+    }
+    const role = await this.store.RoleModel.findOne({name});
+    if (!role) {
+      return { success: false , error_message:"404 role not found"}
+    }
+    user.roles = [...new Set([...user.roles,name])];
+    await user.save();
+    return { success:true };
+  }
+  async unbindRole({ login, role:name}) {
+    const user = await this.store.UserModel.findOne({login});
+    if (!user) {
+      return { success: false , error_message:"404 user not found"}
+    }
+    const index = user.roles.indexOf(name);
+    if (index > -1) {
+        user.roles.splice(index, 1);
+        await user.save();
+        return { success:true };
+    } 
+    return { success: false , error_message:"404 role not found"}
+  }
  }
 
 module.exports = UserAPI;
