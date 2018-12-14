@@ -13,6 +13,21 @@ const typeDefs = gql`
     UNKNOWN
   }
 
+  input RuleInput {
+    resources:[String]
+    actions:[String]
+  }
+
+  type Rule {
+    resources:[String]
+    actions:[String]
+  }
+
+  type RRole {
+    name: String!
+    rules: [Rule]!
+  }
+
   type Query {
     launches: [Launch]!
     launch(id: ID!): Launch
@@ -20,6 +35,7 @@ const typeDefs = gql`
     me: User
     users: [User]! @auth(requires: ADMIN)
     notes: [Note]! @auth(requires: USER)
+    roles: [RRole]! 
   }
   type Launch {
     id: ID!
@@ -64,7 +80,17 @@ const typeDefs = gql`
     login(login: String! password: String!): LoginResponse!
     relogin(login: String): LoginResponse!
     createNote(note: String): Note! @auth(requires: USER)
+   
+    createRole(name: String! rules:[RuleInput]!): RRole! 
+    updateRole(name: String! rules:[RuleInput]!): RRole! 
+    deleteRole(name: String!): Response 
+   
     createUser(login: String! password: String!): User! @auth(requires: ADMIN)
+  }
+
+  type Response {
+    success: Boolean!
+    error_message: String
   }
 
   type LoginResponse {
