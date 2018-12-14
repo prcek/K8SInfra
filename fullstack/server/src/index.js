@@ -9,13 +9,14 @@ const { AuthDirective,createAuthContext } = require('./auth');
 //const { createServer } = require('./utils');
 const { createMockMongoStore } = require('./utils');
 const { createDataSources } = require('./datasources');
+const { createModels } = require('./models');
 
 const resolvers = require('./resolvers');
 
 
 async function start() {
 
-    const mongostore =  await createMockMongoStore();
+    const mongostore =  await createMockMongoStore(createModels);
     const datasources = await createDataSources(mongostore);
     
 

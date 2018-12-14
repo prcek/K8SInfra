@@ -59,7 +59,7 @@ class UserAPI extends DataSource {
     }
 
     const token = jwt.sign({ user: { id: user.id, login, roles:["ADMIN","USER","VIEW"]} }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
-    return { success: true, token, user};
+    return { success: true, token, user, effective_user:user};
   }
 
  }

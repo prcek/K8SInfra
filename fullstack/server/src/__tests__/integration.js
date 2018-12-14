@@ -6,6 +6,7 @@ const { typeDefs} = require('../schema');
 const { AuthDirective,createAuthContext } = require('../auth');
 const { createMockMongoStore } = require('../utils');
 const { createDataSources } = require('../datasources');
+const { createModels } = require('../models');
 const resolvers = require('../resolvers');
 const contextMock = jest.fn();
 const {createTestClient} = require('apollo-server-testing');
@@ -33,7 +34,7 @@ const constructTestServer = async ({ context = defaultContext } = {}) => {
 
 beforeAll(async ()=>{
     console.log("beforeAll")
-    store = await createMockMongoStore();
+    store = await createMockMongoStore(createModels);
     datasources = await createDataSources(store);
     server = new ApolloServer({
         typeDefs,
@@ -65,5 +66,6 @@ describe('[integration]',  () => {
         expect(rs2).not.toMatchObject({errors:expect.anything()});
         expect(rs2).toMatchObject({data:expect.objectContaining({users:[]})});
     });
+
 })
 

@@ -71,6 +71,7 @@ const typeDefs = gql`
     success: Boolean!
     token: String
     user: User
+    effective_user: User
   }
 
   type TripUpdateResponse {

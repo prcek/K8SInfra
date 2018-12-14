@@ -26,7 +26,7 @@ class AuthDirective extends SchemaDirectiveVisitor {
         field.description += `@auth ${requiredRole}`;
         field.resolve = async function (...args) {
           const context = args[2];
-          //TODO check  - requiredRole
+          //TODO check  - effective_user requiredRole 
           if (! context.loggedIn ) {
             throw new Error("not authorized");
           }

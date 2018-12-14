@@ -1,5 +1,6 @@
 const { createMockMongoStore } = require('../../utils');
 const { createAuthContext } = require('../../auth');
+const { createModels } = require('../../models');
 
 const UserAPI = require('../user');
 
@@ -11,7 +12,7 @@ let authContext;
 
 beforeAll(async ()=>{
     console.log("beforeAll")
-    store = await createMockMongoStore();
+    store = await createMockMongoStore(createModels);
     UserModel = store.UserModel;
     userAPI = new UserAPI({ store });
     userAPI.initialize({ context: {  } });

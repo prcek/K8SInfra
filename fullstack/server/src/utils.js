@@ -35,7 +35,7 @@ module.exports.paginateResults = ({
 };
 
 
-module.exports.createMockMongoStore = async () => {
+module.exports.createMockMongoStore = async (createModels) => {
 
   const mongod = new MongoMemoryServer();
 
@@ -76,7 +76,7 @@ module.exports.createMockMongoStore = async () => {
   const info = await admin.buildInfo();
   console.log(`mongodb version ${info.version}`);
 
-
+/*
   const userSchema = new mongoose.Schema({
     login: {type:String, index: true, unique: true},
     password: String,
@@ -89,7 +89,11 @@ module.exports.createMockMongoStore = async () => {
 
   const UserModel = mongoose_connection.model('User',userSchema);
   const NoteModel = mongoose_connection.model('Note',noteSchema);
-  return {UserModel,NoteModel,mongod,mongoose_connection};
+*/
+  const models = await createModels(mongoose_connection);
+
+  return {...models,mongod,mongoose_connection};
+
 
 };
 

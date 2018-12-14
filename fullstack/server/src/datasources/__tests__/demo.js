@@ -3,7 +3,7 @@
 
 const { createMockMongoStore } = require('../../utils');
 const NoteAPI = require('../note');
-
+const { createModels } = require('../../models');
 
 
 let store;
@@ -15,7 +15,7 @@ let noteAPI;
 
 beforeAll(async ()=>{
     console.log("beforeAll")
-    store = await createMockMongoStore();
+    store = await createMockMongoStore(createModels);
     UserModel = store.UserModel;
     NoteModel = store.NoteModel;
     noteAPI = new NoteAPI({ store });
