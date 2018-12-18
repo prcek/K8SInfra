@@ -7,13 +7,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'iddqd';
 
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
-    type._requiredAuthRole = this.args.requires;
+    type._requiredAuth = true;
     this.ensureFieldsWrapped(type);
   }
   visitFieldDefinition(field, details) {
-    field._requiredAuthRole = this.args.requires;
+    field._requiredAuth = true;
     this.ensureFieldsWrapped(details.objectType);
   }
+
+
   ensureFieldsWrapped(objectType) {
     if (objectType._authFieldsWrapped) return;
     objectType._authFieldsWrapped = true;
@@ -21,12 +23,12 @@ class AuthDirective extends SchemaDirectiveVisitor {
     Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
       const { resolve = defaultFieldResolver } = field;
-      const requiredRole = field._requiredAuthRole || objectType._requiredAuthRole;
-      if (requiredRole) {
-        field.description += `@auth ${requiredRole}`;
+      const requiredAuth = field._requiredAuth || objectType._requiredAuth; 
+      if (requiredAuth) {
+      //  console.log("AuthDirective wrapping ",fieldName);
+        field.description += `@auth`;
         field.resolve = async function (...args) {
           const context = args[2];
-          //TODO check  - effective_user requiredRole 
           if (! context.loggedIn ) {
             throw new Error("not authorized");
           }
@@ -50,8 +52,8 @@ class AccessDirective extends SchemaDirectiveVisitor {
     this.ensureFieldsWrapped(details.objectType);
   }
   ensureFieldsWrapped(objectType) {
-    if (objectType._authFieldsWrapped) return;
-    objectType._authFieldsWrapped = true;
+    if (objectType._accessFieldsWrapped) return;
+    objectType._accessFieldsWrapped = true;
     const fields = objectType.getFields();
     Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
@@ -59,6 +61,7 @@ class AccessDirective extends SchemaDirectiveVisitor {
       const requiredActions = field._requiredActions || objectType._requiredActions;
       const requiredResources = field._requiredResources || objectType._requiredResources;
       if (requiredActions || requiredResources) {
+       // console.log("AccessDirective wrapping ",fieldName);
         field.description += `@access resources: ${requiredResources} actions: ${requiredActions}`;
         field.resolve = async function (...args) {
           const context = args[2];

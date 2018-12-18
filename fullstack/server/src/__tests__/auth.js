@@ -20,6 +20,7 @@ const typeDefs = gql`
     actions: [String] 
   ) on OBJECT | FIELD_DEFINITION
 
+  directive @auth on OBJECT | FIELD_DEFINITION
 
   type User {
     id: ID!
@@ -28,12 +29,16 @@ const typeDefs = gql`
 
    type Query {
     users: [User]! @access(resources:["users"],actions:["list"])
+    me: User! @auth
+    hello: String 
   }
  
 `
 const resolvers = {
     Query: {
-        users: jest.fn()
+        users: jest.fn(),
+        me:jest.fn(),
+        hello:jest.fn()
     }
 }
 
@@ -64,10 +69,19 @@ afterAll( async () => {
 
 
 describe('[integration]',  () => {
-    test('loggedIn, loggedOut, authDirective', async () => {
+    test('loggedIn, loggedOut, accessDirective, authDirective', async () => {
         contextMock.mockReturnValue({loggedIn:false});
+        resolvers.Query.me.mockReturnValue({id:"0", login:"user"});
         const rs = await client.query({query:gql`query users { users {login }}`});
         expect(rs).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"not authorized"})])});
+        contextMock.mockReturnValue({loggedIn:false});
+        const rs2 = await client.query({query:gql`query me { me { login } }`});
+        expect(rs2).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"not authorized"})])});
+        contextMock.mockReturnValue({loggedIn:false});
+        resolvers.Query.hello.mockReturnValue("kitty");
+        const rs3 = await client.query({query:gql`query me { hello }`});
+        expect(rs3).toMatchObject({data:{hello:"kitty"}});
+
         contextMock.mockReturnValue({loggedIn:true});
         expect(await client.query({query:gql`query users { users {login }}`})).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
         contextMock.mockReturnValue({loggedIn:true,effective_rules:[{actions:["view"],resources:["roles"]}]});
