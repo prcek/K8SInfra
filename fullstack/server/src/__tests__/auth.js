@@ -116,6 +116,20 @@ describe('[integration]',  () => {
         contextMock.mockReturnValue({loggedIn:true,effective_rules:[{actions:["list"],resources:["note"]},{actions:["delete"],resources:["roles","users"]}]});
         expect(await client.query({query:gql`query users { users {login }}`})).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
         expect(resolvers.Query.users.mock.calls.length).toBe(4);
+
+
+        contextMock.mockReturnValue({loggedIn:true,effective_rules:[{actions:["list","delete"],resources:["*"]}]});
+        expect(await client.query({query:gql`query users { users {login }}`})).not.toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
+        expect(resolvers.Query.users.mock.calls.length).toBe(5);
+
+        contextMock.mockReturnValue({loggedIn:true,effective_rules:[{actions:["*"],resources:["users"]}]});
+        expect(await client.query({query:gql`query users { users {login }}`})).not.toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
+        expect(resolvers.Query.users.mock.calls.length).toBe(6);
+
+        contextMock.mockReturnValue({loggedIn:true,effective_rules:[{actions:["*"],resources:["*"]}]});
+        expect(await client.query({query:gql`query users { users {login }}`})).not.toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
+        expect(resolvers.Query.users.mock.calls.length).toBe(7);
+ 
     });
 
 

@@ -76,8 +76,8 @@ class AccessDirective extends SchemaDirectiveVisitor {
           //find resource in context.effective_rules
           //then check action
           const rrules = context.effective_rules.filter((r)=>{ 
-            const rc = requiredResources.every(i=>r.resources.includes(i));
-            const ac = requiredActions.every(i=>r.actions.includes(i));
+            const rc = r.resources.includes("*") || requiredResources.every(i=>r.resources.includes(i));
+            const ac = r.actions.includes("*") || requiredActions.every(i=>r.actions.includes(i));
             return rc && ac;
           });
           if (rrules.length==0) {

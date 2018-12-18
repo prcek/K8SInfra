@@ -3,15 +3,12 @@ const { gql } = require('apollo-server');
 const typeDefs = gql`
 
 
-  directive @auth(
-    requires: Role = ADMIN,
+  directive @access(
+    resources: [String],
+    actions: [String] 
   ) on OBJECT | FIELD_DEFINITION
 
-  enum Role {
-    ADMIN
-    USER
-    UNKNOWN
-  }
+  directive @auth on OBJECT | FIELD_DEFINITION
 
   input RuleInput {
     resources:[String]
@@ -23,7 +20,7 @@ const typeDefs = gql`
     actions:[String]
   }
 
-  type RRole {
+  type Role @auth {
     name: String!
     rules: [Rule]!
   }
@@ -33,9 +30,9 @@ const typeDefs = gql`
     launch(id: ID!): Launch
     # Queries for the current user
     me: User
-    users: [User]! @auth(requires: ADMIN)
-    notes: [Note]! @auth(requires: USER)
-    roles: [RRole]! 
+    users: [User]! @auth
+    notes: [Note]! @auth
+    roles: [Role]! 
   }
   type Launch {
     id: ID!
@@ -52,12 +49,13 @@ const typeDefs = gql`
 
   type Note {
     id: ID!
-    note: String @auth(requires: ADMIN)
+    note: String @auth
   }
 
   type User {
     id: ID!
     login: String!
+    sudo: Boolean
   }
 
   type Mission {
@@ -79,13 +77,15 @@ const typeDefs = gql`
 
     login(login: String! password: String!): LoginResponse!
     relogin(login: String): LoginResponse!
-    createNote(note: String): Note! @auth(requires: USER)
+    createNote(note: String): Note! @auth
    
-    createRole(name: String! rules:[RuleInput]!): RRole! 
-    updateRole(name: String! rules:[RuleInput]!): RRole! 
+    createRole(name: String! rules:[RuleInput]!): Role! 
+    updateRole(name: String! rules:[RuleInput]!): Role! 
     deleteRole(name: String!): Response 
    
-    createUser(login: String! password: String!): User! @auth(requires: ADMIN)
+    createUser(login: String! password: String!, sudo:Boolean): User! @auth
+    bindRole(login:String! role:String): Response 
+    unbindRole(login:String! role:String): Response
   }
 
   type Response {
