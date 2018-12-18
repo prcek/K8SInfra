@@ -111,6 +111,7 @@ describe('[integration]',  () => {
         expect(await datasources.userAPI.bindRole({login:"admin", role:"auditor"})).toMatchObject({success:true});
 
 
+
         const lr = await datasources.userAPI.login({login:"admin",password:"secret"});
         expect(lr).toEqual(expect.objectContaining({
             success:true,
@@ -121,7 +122,10 @@ describe('[integration]',  () => {
         }));   
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
         contextMock.mockReturnValue(ac);
+        resolvers.Query.users.mockReset();
+        resolvers.Query.users.mockReturnValue([]);
         expect(await client.query({query:gql`query users { users {login }}`})).not.toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
+        expect(resolvers.Query.users.mock.calls.length).toBe(1);
 
         expect(await datasources.userAPI.unbindRole({login:"admin", role:"auditor"})).toMatchObject({success:true});
 
@@ -137,6 +141,7 @@ describe('[integration]',  () => {
         const ac2 = await authContext({req:{headers:{authorization:"Bearer "+lr2.token}}});
         contextMock.mockReturnValue(ac2);
         expect(await client.query({query:gql`query users { users {login }}`})).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"access denied"})])});
+        expect(resolvers.Query.users.mock.calls.length).toBe(1);
 
     });
 
