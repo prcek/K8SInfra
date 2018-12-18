@@ -19,7 +19,7 @@ class RoleAPI extends DataSource {
   async updateRole(args) {
     const role = await this.store.RoleModel.findOne({name:args.name});
     if (!role) {
-      return null;
+      return {success:false,error_message:"404 not found"};
     }
     role.rules = args.rules;
     const ur = await role.save();

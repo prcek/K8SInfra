@@ -95,9 +95,21 @@ describe('[UserAPI]', () => {
         expect(rlr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"admin"})}));
     });
 
+    test('relogin #2',async ()=>{
+        expect(await userAPI.createUser({login:"root",password:"secret"})).toMatchObject({login:"root"});
+        const lr = await userAPI.login({login:"root",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"root"})}));
+        const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
+        expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"root"}});
+        userAPI.initialize({ context: ac});
+        expect(await userAPI.deleteUser({login:"root"}))  
+        const rlr = await userAPI.relogin({});
+        expect(rlr).toEqual(expect.objectContaining({success:false}));
+    });
+
+
 
     test('role binding', async ()=>{
-
         expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});
         expect(await userAPI.createUser({login:"joe",password:"secret"})).toMatchObject({login:"joe"});
         expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});

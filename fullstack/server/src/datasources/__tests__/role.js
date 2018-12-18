@@ -48,6 +48,9 @@ describe('[RoleAPI]', () => {
                     actions:expect.arrayContaining(["view","update"]),
                 })])
         }));
+
+        expect(await roleAPI.updateRole({name:"missing_user",rules:[{actions:["view","update"],resources:["roles"]}]})).toMatchObject({success:false});
+
     });
 
     test('delete role', async () => {

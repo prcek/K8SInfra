@@ -33,6 +33,16 @@ class UserAPI extends DataSource {
     return this.store.UserModel.create(nu);
   }
 
+
+  async deleteUser(args) {
+    const user = await this.store.UserModel.findOne({login:args.login});
+    if (!user) {
+      return {success:false,error_message:"404 not found"};
+    }
+    const du = await user.remove();
+    return { success:true, user:du}
+  }
+
   async relogin({ login }) {
     if (!this.context.loggedIn) {
       return { success:false };
