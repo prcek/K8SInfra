@@ -101,7 +101,7 @@ const createAuthContext = (store) => {
         if (token) {
           try {
             const decoded = jwt.verify(token, JWT_SECRET);
-            return { loggedIn: true, user: decoded.user};
+            return { loggedIn: true, user: decoded.user, effective_user:decoded.effective_user,effective_rules:decoded.effective_rules};
           } catch(err) {
 
           }
