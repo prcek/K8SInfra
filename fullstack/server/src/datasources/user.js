@@ -48,21 +48,40 @@ class UserAPI extends DataSource {
       return { success:false };
     }
 
-
-
     const user = await this.store.UserModel.findById(this.context.user.id);
     if (!user) {
       return { success:false };
     }
-      //TODO relogin - change login/user_id
-    const effective_user = user;
 
+
+
+    let effective_user = null;
+    if (this.context.user.id != this.context.effective_user.id) {
+      effective_user = await this.store.UserModel.findById(this.context.effective_user.id);
+      if (!effective_user) {
+        return { success:false };
+      }
+    } else  {
+      effective_user = user;
+    }
+
+
+    if (login && login!==effective_user.login) {
+      if (!user.sudo) {
+        return { success:false };
+      }
+      effective_user = await this.store.UserModel.findOne({login});
+      if (!effective_user) {
+        return { success:false };
+      }
+    }
+ 
     const roles = await this.store.RoleModel.find({name: {$in:[...effective_user.roles]} });
     const rules = roles.reduce((res,r)=>{return res.concat(r.rules)},[]);
 
     const token = jwt.sign({
-       user: { id: user.id, login:user.login, roles:user.roles}, 
-       effective_user: { id: user.id, login, roles: user.roles},
+       user: { id: user.id, login:user.login, roles:user.roles, sudo:user.sudo}, 
+       effective_user: { id: effective_user.id, login:effective_user.login, roles: effective_user.roles},
        effective_rules: rules, 
     }, JWT_SECRET,{expiresIn: JWT_EXPIRE});
     return { success: true, token, user, effective_user, effective_rules:rules};
@@ -83,7 +102,7 @@ class UserAPI extends DataSource {
     const rules = roles.reduce((res,r)=>{return res.concat(r.rules)},[]);
 
     const token = jwt.sign({ 
-      user: { id: user.id, login, roles: user.roles},
+      user: { id: user.id, login, roles: user.roles, sudo:user.sudo},
       effective_user: { id: user.id, login, roles: user.roles},
       effective_rules: rules, 
     }, JWT_SECRET,{expiresIn: JWT_EXPIRE});

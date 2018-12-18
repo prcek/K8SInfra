@@ -18,6 +18,7 @@ module.exports.createModels = async (mongoose_connection) => {
     const userSchema = new Schema({
         login: {type:String, index: true, unique: true},
         password: String,
+        sudo: Boolean,
         roles: [String],
     });
       

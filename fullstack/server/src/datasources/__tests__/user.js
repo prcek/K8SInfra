@@ -102,10 +102,40 @@ describe('[UserAPI]', () => {
         const ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
         expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"root"}});
         userAPI.initialize({ context: ac});
-        expect(await userAPI.deleteUser({login:"root"}))  
+        expect(await userAPI.deleteUser({login:"root"})).toMatchObject({success:true});  
         const rlr = await userAPI.relogin({});
         expect(rlr).toEqual(expect.objectContaining({success:false}));
+        expect(await userAPI.deleteUser({login:"root"})).toMatchObject({success:false});  
     });
+
+    test('sudo relogin',async ()=>{
+        expect(await userAPI.createUser({login:"power",password:"secret", sudo:true})).toMatchObject({login:"power"});
+        expect(await userAPI.createUser({login:"bfu",password:"dummy"})).toMatchObject({login:"bfu"});
+
+        const lr = await userAPI.login({login:"power",password:"secret"});
+        expect(lr).toEqual(expect.objectContaining({success:true,token:expect.any(String),user:expect.objectContaining({id:expect.any(String),login:"power"}),effective_user:expect.objectContaining({id:expect.any(String),login:"power"})}));
+        let ac = await authContext({req:{headers:{authorization:"Bearer "+lr.token}}});
+        expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"power"},effective_user:{id:lr.user.id,login:"power"}});
+        userAPI.initialize({ context: ac});
+        let rlr = await userAPI.relogin({login:"bfu"});        
+        expect(rlr).toEqual(expect.objectContaining({success:true,user:expect.objectContaining({id:expect.any(String),login:"power"}),effective_user:expect.objectContaining({id:expect.any(String),login:"bfu"})}));
+
+        ac = await authContext({req:{headers:{authorization:"Bearer "+rlr.token}}});
+        expect(ac).toMatchObject({loggedIn:true,user:{id:lr.user.id,login:"power"},effective_user:{id:rlr.effective_user.id,login:"bfu"}});
+        userAPI.initialize({ context: ac});
+
+        rlr = await userAPI.relogin({});        
+        expect(rlr).toEqual(expect.objectContaining({success:true,user:expect.objectContaining({id:lr.user.id,login:"power"}),effective_user:expect.objectContaining({id:expect.any(String),login:"bfu"})}));
+
+        rlr = await userAPI.relogin({login:"missing_user"});        
+        expect(rlr).toEqual(expect.objectContaining({success:false}));
+
+
+        rlr = await userAPI.relogin({login:"power"});        
+        expect(rlr).toEqual(expect.objectContaining({success:true,user:expect.objectContaining({id:expect.any(String),login:"power"}),effective_user:expect.objectContaining({id:lr.user.id,login:"power"})}));
+
+    });
+
 
 
 
@@ -133,6 +163,9 @@ describe('[UserAPI]', () => {
         expect(await userAPI.unbindRole({login:"joe", role:"auditor"})).toMatchObject({success:true});
         expect(await userAPI.unbindRole({login:"joe", role:"tester"})).toMatchObject({success:false});
         expect(await userAPI.unbindRole({login:"joe", role:"auditor"})).toMatchObject({success:false});
+
+        expect(await userAPI.bindRole({login:"missing_user", role:"auditor"})).toMatchObject({success:false});
+        expect(await userAPI.bindRole({login:"joe", role:"missing_role"})).toMatchObject({success:false});
 
     });
 
