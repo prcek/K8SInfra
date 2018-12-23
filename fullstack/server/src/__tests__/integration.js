@@ -3,7 +3,7 @@
 const { ApolloServer } = require('apollo-server');
 const gql = require('graphql-tag');
 const { typeDefs} = require('../schema');
-const { AuthDirective,createAuthContext } = require('../auth');
+const { AuthDirective,AccessDirective,  createAuthContext } = require('../auth');
 const { createMockMongoStore } = require('../utils');
 const { createDataSources } = require('../datasources');
 const { createModels } = require('../models');
@@ -42,7 +42,8 @@ beforeAll(async ()=>{
         dataSources: () => datasources,
         context:contextMock,
         schemaDirectives: {
-            auth:AuthDirective
+            auth:AuthDirective,
+            access: AccessDirective,
         },
       });
     client = createTestClient(server);
@@ -61,7 +62,7 @@ describe('[integration]',  () => {
         contextMock.mockReturnValue({loggedIn:false});
         const rs = await client.query({query:gql`query users { users {login }}`});
         expect(rs).toMatchObject({errors:expect.arrayContaining([expect.objectContaining({message:"not authorized"})])});
-        contextMock.mockReturnValue({loggedIn:true});
+        contextMock.mockReturnValue({loggedIn:true, effective_rules:[{resources:["*"],actions:["*"]}]});
         const rs2 = await client.query({query:gql`query users { users {login }}`});
         expect(rs2).not.toMatchObject({errors:expect.anything()});
         expect(rs2).toMatchObject({data:expect.objectContaining({users:[]})});

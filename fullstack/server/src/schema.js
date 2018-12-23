@@ -20,7 +20,7 @@ const typeDefs = gql`
     actions:[String]
   }
 
-  type Role @auth {
+  type Role {
     name: String!
     rules: [Rule]!
   }
@@ -30,9 +30,10 @@ const typeDefs = gql`
     launch(id: ID!): Launch
     # Queries for the current user
     me: User
-    users: [User]! @auth
+    users: [User]! @access(resources:["users"],actions:["list"])
     notes: [Note]! @auth
-    roles: [Role]! 
+    roles: [Role]! @access(resources:["roles"],actions:["list"])
+
   }
   type Launch {
     id: ID!
@@ -83,7 +84,7 @@ const typeDefs = gql`
     updateRole(name: String! rules:[RuleInput]!): Role! 
     deleteRole(name: String!): Response 
    
-    createUser(login: String! password: String!, sudo:Boolean): User! @auth
+    createUser(login: String! password: String!, sudo:Boolean): User! @access(resources:["users"],actions:["new"])
     bindRole(login:String! role:String): Response 
     unbindRole(login:String! role:String): Response
   }
@@ -98,6 +99,7 @@ const typeDefs = gql`
     token: String
     user: User
     effective_user: User
+    effective_rules: [Rule]
   }
 
   type TripUpdateResponse {
